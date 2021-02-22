@@ -1,0 +1,45 @@
+{
+   "background": {
+      "persistent": true,
+      "scripts": [ "js/url_wrapper.js",
+                   "js/message_utility.js",
+                   "js/bg_message_sender.js",
+                   "js/bg_contextmenu_controller.js",
+                   "js/background.js" ]
+   },
+   "browser_action": {
+      "default_icon": {
+         "19": "img/badge_on.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "Blog Collection Filter",
+      "name": "Blog Collection Filter"
+   },
+   "content_scripts": [ {
+      "js": [ "js/jquery-3.3.1.min.js",
+              "js/message_utility.js",
+              "js/text_utility.js",
+              "js/url_wrapper.js",
+              "js/storage_data.js",
+              "js/blog_utility.js",
+              "js/filter_base.js",
+              "js/livedoor_filter.js",
+              "js/with2_filter.js",
+              "js/content.js" ],
+      "matches": [ "https://blog.livedoor.com/*",
+                   "https://blog.with2.net/*"],
+      "run_at": "document_start"
+   } ],
+   "description": "ブログランキング・更新情報にフィルタ機能を追加するChrome拡張です。「URL指定/ワード指定でのブログフィルタ」が行えます。",
+   "icons": {
+      "19": "img/badge_on.png",
+      "48": "img/icon_48.png"
+   },
+   "manifest_version": 2,
+   "name": "ブログフィルタ",
+   "author": "lvnkae",
+   "permissions": [ "tabs", "storage", "contextMenus"],
+   "short_name": "BlogCollectionFilter",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.0.0"
+}
