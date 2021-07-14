@@ -15,6 +15,19 @@ class BlogUtil {
             return decodeURIComponent(link_div[len-1]);
         }
     }
+    /*!
+     *  @brief  ブログ村のオプション付きリンクからURLを切り出す
+     *  @note   現状with2と同じ処理だが一応分けとく
+     */
+    static cut_blog_url_from_blogmura_link(link) {
+        const link_div = link.split('=');
+        const len = link_div.length;
+        if (len <= 0) {
+            return "";
+        } else {
+            return decodeURIComponent(link_div[len-1]);
+        }
+    }
 
     /*!
      *  @brief  ページチャンネルURLを得る
@@ -97,5 +110,19 @@ class BlogUtil {
             return;
         }
         $(dt_node).detach();
+    }
+
+    /*!
+     *  @brief  textノードのテキストだけを得る
+     *  @note   aタグがspan等特殊ノードを内包してる場合に使う
+     */
+    static get_textnode_text(p) {
+        var text = "";
+        for (const cn of p.childNodes) {
+            if (cn.nodeName == "#text") {
+                text += cn.textContent;
+            }
+        }
+        return text;
     }
 }

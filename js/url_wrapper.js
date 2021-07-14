@@ -35,6 +35,10 @@ class urlWrapper {
     {
         return this.domain.indexOf("blog.livedoor.com") >= 0;
     }
+    in_blogmura()
+    {
+        return this.domain.indexOf("blogmura.com") >= 0;
+    }
     in_with2()
     {
         return this.domain.indexOf("blog.with2.net") >= 0;

@@ -31,6 +31,8 @@ class Content {
         const loc = new urlWrapper(location.href);
         if (loc.in_livedoor()) {
             this.filter_instance = new LivedoorFilter(this.storage);
+        } else if (loc.in_blogmura()) {
+            this.filter_instance = new BlogmuraFilter(this.storage);
         } else if (loc.in_with2()) {
             this.filter_instance = new With2Filter(this.storage);
         } else {

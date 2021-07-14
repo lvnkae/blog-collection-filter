@@ -62,6 +62,30 @@ class LivedoorFilter extends FilterBase {
     }
 
     /*!
+     *  @brief  おすすめ速報フィルタ
+     *  @note   ジャンルごとの更新情報
+     */
+    filtering_genre() {
+        const root_node = $("div.MdList06");
+        if (root_node.length <= 0) {
+            return;
+        }
+        $(root_node).find("li").each((inx, elem)=> {
+            const ttl = $(elem).find("h3.mdList06Ttl");
+            if (ttl.length <= 0) {
+                return;
+            }
+            const a_tag = $(ttl).find("a")[0];
+            const url = $(a_tag).attr("href");
+            const entry_title = $(a_tag).text();
+            if (this.storage.entry_title_filter(entry_title) ||
+                this.storage.blog_url_filter(url, entry_title)) {
+                $(elem).detach();
+            }
+        });
+    }
+
+    /*!
      *  @brief  編集部の推し(よりぬき)フィルタ
      *  @note   ランキングページ等のサイドに出る奴
      */
@@ -147,7 +171,7 @@ class LivedoorFilter extends FilterBase {
      *  @note   抽出記事全てのサムネを表示するタイプ
      *  @note   (総合ランキング)
      */
-    filtering_ranking_box_allsumnail_entry(base_node, url) {
+    filtering_ranking_box_allthumbnail_entry(base_node, url) {
         $(base_node).find("img").each((inx, img)=> {
             const entry_title = $(img).attr("alt");
             if (this.storage.entry_title_filter(entry_title) ||
@@ -168,7 +192,7 @@ class LivedoorFilter extends FilterBase {
      *  @note   記事オンマウスでサムネが変わるタイプ
      *  @note   (ブロガー/急上昇ランキング)
      */
-    filtering_ranking_box_singlesumnail_entry(base_node, url) {
+    filtering_ranking_box_singlethumbnail_entry(base_node, url) {
         const left = $(base_node).find("div.left");
         const right = $(base_node).find("div.right");
         if (left.length <= 0 || right.length <= 0) {
@@ -195,11 +219,11 @@ class LivedoorFilter extends FilterBase {
             // サムネ切り替え
             $(right).find("span.more").each((inx, more)=> {
                 const entry_title = $(more).text();
-                const entry_sumnail =
+                const entry_thumbnail =
                     text_utility.remove_new_line_and_space($(more).attr("data-src"));
-                var sumnail = $(left).find("img")[0];
-                $(sumnail).attr("alt", entry_title);
-                $(sumnail).attr("src", entry_sumnail);
+                var thumbnail = $(left).find("img")[0];
+                $(thumbnail).attr("alt", entry_title);
+                $(thumbnail).attr("src", entry_thumbnail);
                 return false;
             });
         }            
@@ -227,9 +251,9 @@ class LivedoorFilter extends FilterBase {
                 return;
             }
             if ($(inner).find("div.right-inner").length > 0) {
-                this.filtering_ranking_box_allsumnail_entry(inner, url);
+                this.filtering_ranking_box_allthumbnail_entry(inner, url);
             } else {
-                this.filtering_ranking_box_singlesumnail_entry(inner, url);
+                this.filtering_ranking_box_singlethumbnail_entry(inner, url);
             }
         });
     }
@@ -309,11 +333,14 @@ class LivedoorFilter extends FilterBase {
         this.filtering_recent();
         this.filtering_headline();
         this.filtering_news();
+        this.filtering_genre();
     }
 
     get_observing_node(elem) {
-        const tag = $("div.category-ranking-inner.clearfix");
-        $(tag).each((inx, e)=>{ elem.push(e); });
+        const tag = $("div.LyContents.MdCF");
+        $(tag).each((inx, e)=>{
+            elem.push(e); 
+        });
     }
 
     callback_domloaded() {
