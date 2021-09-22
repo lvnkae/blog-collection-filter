@@ -7,7 +7,7 @@ class With2Filter extends FilterBase {
      *  @brief  ブログランキングにフィルタをかける
      */
     filtering_ranking() {
-        const root_node = $("div#rankWrapper");
+        const root_node = $("section#ranking");
         if (root_node.length <= 0) {
             return;
         }
@@ -63,7 +63,7 @@ class With2Filter extends FilterBase {
     }
 
     /*!
-     *  @param storage  ストレージインスタンス
+     *  @param storage  StorageDataインスタンス
      */
     constructor(storage) {
         super(storage);
