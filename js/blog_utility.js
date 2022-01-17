@@ -30,6 +30,20 @@ class BlogUtil {
     }
 
     /*!
+     *  @brief  ライブドアブログのリンクからドメインを切り出す
+    *   @note   独自ドメインでない場合はsubdirも参照
+    */
+    static cut_blog_domain_from_livedoor_link(link) {
+        var url_w = new urlWrapper(link);
+        if (url_w.domain == 'blog.livedoor.jp') {
+            return url_w.domain + '/' + url_w.subdir[0];
+        } else {
+            // 独自ドメイン
+            return url_w.domain;
+        }
+    }
+
+    /*!
      *  @brief  ページチャンネルURLを得る
      */
     static get_page_author_url() {

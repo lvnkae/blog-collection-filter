@@ -59,25 +59,30 @@ class StorageData {
     }
 
     /*!
+     *
+     */
+    is_filter_active() { return this.json.active; }
+
+    /*!
      *  @brief  ブログURLフィルタ設定を追加(重複チェックあり)
      *  @param  url     設定するURL
      *  @param  bname   ブログ名
      *  @retval true    storage構成変更があった
      */
     add_blog_url_mute_with_check(url, bname) {
-        if (this.json.ng_blog == null) {
-            this.json.nb_blog = [];
+        if (this.json.ng_blog_url == null) {
+            this.json.ng_blog_url = [];
         }
-        for (const obj of this.json.ng_blog) {
+        for (const obj of this.json.ng_blog_url) {
             if (obj.url == url) {
                 return false;
             }
         }
         var ng_blog = {};
         ng_blog.url = url;
-        nb_blog.black_titles = [];
-        nb_blog.comment = bname;
-        this.json.ng_blog.push(nb_blog);
+        ng_blog.black_titles = [];
+        ng_blog.comment = bname;
+        this.json.ng_blog_url.push(ng_blog);
         return true;
     }
 

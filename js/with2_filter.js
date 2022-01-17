@@ -68,5 +68,7 @@ class With2Filter extends FilterBase {
     constructor(storage) {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        this.contextmenu_controller
+            = new ContextMenuController_With2(storage.is_filter_active()); 
     }
 }

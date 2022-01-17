@@ -13,10 +13,10 @@ class Content {
                 if (request.command == MessageUtil.command_mute_blog_url()) {
                     const update
                         = this.storage.add_blog_url_mute_with_check(request.blog_url,
-                                                                    request.blog);
+                                                                    request.blog_name);
                     if (update && request.tab_active) {
                         this.storage.save();
-                        if (this.storage.json.active) {
+                        if (this.storage.is_filter_active()) {
                             this.filter_instance.clear_marker();
                             this.filter_instance.filtering();
                         }

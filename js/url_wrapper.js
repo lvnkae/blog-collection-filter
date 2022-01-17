@@ -26,9 +26,19 @@ class urlWrapper {
         this.subdir = [];
         if (href_div.length > 1) {
             for (var i = 1; i < href_div.length; i++) {
-                this.subdir.push(href_div[i]);
+                if (href_div[i] != '') {
+                    this.subdir.push(href_div[i]);
+                }
             }
         }
+    }
+
+    get_url_without_protocol() {
+        var ret = this.domain;
+        this.subdir.forEach(elem => {
+            ret += '/' + elem;
+        });
+        return ret;
     }
 
     in_livedoor()

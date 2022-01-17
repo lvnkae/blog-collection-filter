@@ -104,7 +104,7 @@ class LivedoorFilter extends FilterBase {
         });
     }
     /*!
-     *  @brief  編集部の推しフィルタ
+     *  @brief  「編集部の推し」にフィルタをかける
      */
     filtering_news() {
         $("div.news-inner").each((inx, news)=>{
@@ -141,7 +141,7 @@ class LivedoorFilter extends FilterBase {
         });
     }
     /*!
-     *  @brief  ブログ速報フィルタ
+     *  @brief  「ブログ速報」にフィルタをかける
      */
     filtering_headline() {
         const root_node = $("div.headline-inner.clearfix");
@@ -153,6 +153,40 @@ class LivedoorFilter extends FilterBase {
         this.filtering_blog_ad2(root_node);
     }
 
+    /*!
+     *  @brief  「おすすめブログ」にフィルタをかける
+     */
+    filtering_select() {
+        const root_node = $("div.MdList01");
+        if (root_node.length <= 0) {
+            return;
+        }
+        $(root_node).find("li").each((inx, elem)=> {
+            const ttl = $(elem).find("h3.mdItem01Ttl");
+            if (ttl.length <= 0) {
+                return;
+            }
+            const a_tag = $(ttl).find("a")[0];
+            const url = $(a_tag).attr("href");
+            if (this.storage.blog_url_filter(url)) {
+                $(elem).detach();
+                return; // 打ち切ってヨシ
+            }
+            const e_entry = $(elem).find("div.mdItem01Entry");
+            if (e_entry.length <= 0) {
+                return;
+            }
+            const entry_ttl = $(e_entry).find("p.mdItem01EntryTtl");
+            if (entry_ttl.length <= 0) {
+                return;
+            }
+            const entry_title = $($(entry_ttl).find("a")[0]).text();
+            if (this.storage.entry_title_filter(entry_title)) {
+                $(e_entry).detach();
+            }
+        });
+    }
+    
     /*!
      *  @brief  ブログランキング(よりぬき)フィルタ
      *  @note   ブログ速報等のサイドに出る奴
@@ -258,7 +292,7 @@ class LivedoorFilter extends FilterBase {
         });
     }
     /*!
-     *  @brief  ブログランキングにフィルタをかける
+     *  @brief  「ランキング」にフィルタをかける
      */
     filtering_ranking() {
         const root_node = $("div.ranking-inner.clearfix");
@@ -273,7 +307,7 @@ class LivedoorFilter extends FilterBase {
     }
     
     /*!
-     *  @brief  ブログカテゴリランキングにフィルタをかける
+     *  @brief  カテゴリ->カテゴリ内ランキングにフィルタをかける
      */
     filtering_category_ranking() {
         const root_node = $("div.category-ranking-inner.clearfix");
@@ -300,11 +334,10 @@ class LivedoorFilter extends FilterBase {
             });
         });
     }
-
     /*!
-     *  @brief  ブログ新着エントリーにフィルタをかける
+     *  @brief  カテゴリ→新着エントリーにフィルタをかける
      */
-    filtering_recent() {
+    filtering_category_recent() {
         const root_node = $("div.category-recent-inner.clearfix");
         if (root_node.length <= 0) {
             return;
@@ -323,16 +356,56 @@ class LivedoorFilter extends FilterBase {
             }
         });
     }
+    /*!
+     *  @brief  カテゴリ(home)にフィルタをかける
+     */
+    filtering_category_home() {
+        const root_node = $("div#lb-category-list");
+        if (root_node.length <= 0) {
+            return;
+        }
+        $(root_node).find("div.box").each((inx, box)=>{
+            const e_ul = $(box).find("ul.img.clearfix");
+            if (e_ul.length <= 0) {
+                return;
+            }
+            $(e_ul).find("li").each((inx, elem)=> {
+                const thumb = $(elem).find("img");
+                if (thumb.length <= 0 || $(thumb).attr("alt") == null) {
+                    return;
+                }
+                const a_tag = BlogUtil.search_upper_node($(thumb), (e)=> {
+                    return e.localName == 'a';
+                });
+                if (a_tag.length == 0) {
+                    return;
+                }
+                const url = $(a_tag).attr("href");
+                if (this.storage.blog_url_filter(url)) {
+                    $(elem).detach();
+                    return;
+                }
+            });
+        });
+    }
+    /*!
+     *  @brief  「カテゴリ」にフィルタをかける
+     */
+    filtering_category() {
+        this.filtering_category_home();
+        this.filtering_category_ranking();
+        this.filtering_category_recent();
+    }
 
     /*!
      *  @brief  フィルタリング
      */
     filtering() {
         this.filtering_ranking();
-        this.filtering_category_ranking();
-        this.filtering_recent();
         this.filtering_headline();
+        this.filtering_category();
         this.filtering_news();
+        this.filtering_select();
         this.filtering_genre();
     }
 
@@ -362,5 +435,7 @@ class LivedoorFilter extends FilterBase {
     constructor(storage) {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        this.contextmenu_controller
+            = new ContextMenuController_Livedoor(storage.is_filter_active());
     }
 }

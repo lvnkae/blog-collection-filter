@@ -20,11 +20,10 @@ class BGContextMenuController extends BGMessageSender {
             });
         } else {
             const click_command = request.click_command;
-            if (MessageUtil.command_mute_channel_id() ||
-                MessageUtil.command_mute_comment_id()) {
+            if (MessageUtil.command_mute_blog_url()) {
                 const param = {click_command: click_command,
-                               channel_id: request.channel_id,
-                               channel: request.channel};
+                               blog_url: request.blog_url,
+                               blog_name: request.blog_name};
                 this.menu_param = param;
             }
             //
@@ -53,11 +52,10 @@ class BGContextMenuController extends BGMessageSender {
             "visible" : true,
             "onclick" : (info)=> {
                 const click_command = this.menu_param.click_command;
-                if (click_command == MessageUtil.command_mute_channel_id() ||
-                    click_command == MessageUtil.command_mute_comment_id()) {
+                if (click_command == MessageUtil.command_mute_blog_url()) {
                     this.send_reply({command: click_command,
-                                     channel_id: this.menu_param.channel_id,
-                                     channel: this.menu_param.channel});
+                                     blog_url: this.menu_param.blog_url,
+                                     blog_name: this.menu_param.blog_name});
                 }
             }
         });
