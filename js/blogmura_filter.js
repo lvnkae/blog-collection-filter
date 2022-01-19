@@ -43,7 +43,20 @@ class BlogmuraFilter extends FilterBase {
             }
         });
     }    
-
+    /*!
+     *  @brief  [side]記事リストにフィルタをかける
+     */
+    filtering_side_entry_list(root_node) {
+        $(root_node).find("li.side-post-list-item").each((inx, itm)=>{
+            const a_tag = $(itm).find("a.title");
+            const url = BlogUtil.cut_blog_url_from_blogmura_link($(a_tag).attr("href"));
+            const entry_title = $(a_tag).text();
+            if (this.storage.entry_title_filter(entry_title) ||
+                this.storage.blog_url_filter(url, entry_title)) {
+                $(itm).detach();
+            }
+        });
+    }
     /*!
      *  @brief  トップページにフィルタをかける
      */
@@ -55,6 +68,12 @@ class BlogmuraFilter extends FilterBase {
         this.filtering_thumbnail_list($("div.post-image-wrapper"));
         this.filtering_entry_list($("div.new-post-wrapper"));
         this.filtering_blog_list($("div.new-site-wrapper"));
+        this.filtering_side_entry_list($("div.side-content.feature-post-side-wrapper"));
+        this.filtering_side_entry_list($("div.side-content.new-post-side-wrapper"));
+        $("div.side-content.ranking-side-wrapper").each((inx, wrapper)=> {
+            this.filtering_side_entry_list(wrapper);
+        });
+        this.filtering_side_entry_list($("div.side-content.past-post-side-wrapper"));
     }
 
     /*!
@@ -159,5 +178,7 @@ class BlogmuraFilter extends FilterBase {
     constructor(storage) {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        this.contextmenu_controller
+            = new ContextMenuController_Blogmura(storage.is_filter_active()); 
     }
 }

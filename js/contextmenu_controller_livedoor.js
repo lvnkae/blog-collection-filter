@@ -28,7 +28,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
     // ランキング->記事
     static get_ranking_entry_blog_name(nd_livedoor) {
@@ -53,7 +53,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
 
     // カテゴリ->home
@@ -85,7 +85,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
     // カテゴリ->新着エントリー
     static get_category_blog_name(nd_livedoor) {
@@ -104,7 +104,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
     // カテゴリ->カテゴリ内ランキング
     static get_category_rank_blog_name(nd_livedoor) {
@@ -131,7 +131,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
 
     // ブログ速報
@@ -161,7 +161,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
 
     // おすすめブログ
@@ -181,7 +181,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
 
     // おすすめ速報
@@ -194,7 +194,7 @@ class ContextMenuController_Livedoor extends ContextMenuController {
         if (a_tag.length == 0) {
             return null;
         }
-        return BlogUtil.cut_blog_domain_from_livedoor_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link($(a_tag[0]).attr("href"));
     }
 
 

@@ -30,12 +30,14 @@ class BlogUtil {
     }
 
     /*!
-     *  @brief  ライブドアブログのリンクからドメインを切り出す
-    *   @note   独自ドメインでない場合はsubdirも参照
-    */
-    static cut_blog_domain_from_livedoor_link(link) {
+     *  @brief  ブログのリンクからドメインを切り出す
+     *  @note   livedoor/ameblo/gooの共通ドメインはsubdirも参照
+     */
+    static cut_blog_domain_from_link(link) {
         var url_w = new urlWrapper(link);
-        if (url_w.domain == 'blog.livedoor.jp') {
+        if (url_w.domain == 'blog.livedoor.jp' ||
+            url_w.domain == 'ameblo.jp' ||
+            url_w.domain == 'blog.goo.ne.jp') {
             return url_w.domain + '/' + url_w.subdir[0];
         } else {
             // 独自ドメイン

@@ -4,7 +4,32 @@
 class With2Filter extends FilterBase {
 
     /*!
-     *  @brief  ブログランキングにフィルタをかける
+     *  @brief  新着記事にフィルタをかける
+     */
+    filtering_new_arrival() {
+        const root_node = $("section#ranking");
+        if (root_node.length <= 0) {
+            return;
+        }
+        $(root_node).find("ul.jq-follow-list").each((inx, g_item)=> {
+            $(g_item).find("li").each((inx, elem)=> {
+                const a_tag = $(elem).find("a.jq-follow-link");
+                if (a_tag.length <= 0) {
+                    return;
+                }
+                const entry_title = $(a_tag).attr("title");
+                const url = 
+                    BlogUtil.cut_blog_url_from_with2_link($(a_tag).attr("href"));
+                if (this.storage.entry_title_filter(entry_title) ||
+                    this.storage.blog_url_filter(url, entry_title)) {
+                    $(elem).detach();
+                }
+            });
+        });
+    }
+
+    /*!
+     *  @brief  ランキングにフィルタをかける
      */
     filtering_ranking() {
         const root_node = $("section#ranking");
@@ -42,10 +67,11 @@ class With2Filter extends FilterBase {
      */
     filtering() {
         this.filtering_ranking();
+        this.filtering_new_arrival();
     }
 
     get_observing_node(elem) {
-        const tag0 = $("div.ranking");
+        const tag0 = $("div.rank-body");
         $(tag0).each((inx, e)=>{ elem.push(e); });
     }
 

@@ -24,6 +24,7 @@
               "js/blog_utility.js",
               "js/filter_base.js",
               "js/contextmenu_controller.js",
+              "js/contextmenu_controller_blogmura.js",
               "js/contextmenu_controller_livedoor.js",
               "js/contextmenu_controller_with2.js",
               "js/livedoor_filter.js",

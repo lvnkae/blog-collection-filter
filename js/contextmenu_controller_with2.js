@@ -3,6 +3,7 @@
  */
 class ContextMenuController_With2 extends ContextMenuController {
 
+    // ランキング
     static get_ranking_blog_name(nd_with2) {
         const e_body = $(nd_with2).find("div.body");
         if (e_body.length == 0) {
@@ -14,8 +15,7 @@ class ContextMenuController_With2 extends ContextMenuController {
         }
         return $(a_tag).text();
     }
-
-    static get_ranking_blog_url(nd_with2) {
+    static get_ranking_blog_domain(nd_with2) {
         const e_body = $(nd_with2).find("div.body");
         if (e_body.length == 0) {
             return null;
@@ -29,19 +29,54 @@ class ContextMenuController_With2 extends ContextMenuController {
         return url_w.get_url_without_protocol();
     }
 
+    // 新着記事
+    static get_new_arrival_blog_name(nd_with2) {
+        const e_body = $(nd_with2).find("span.jq-follow-site-ttl-body");
+        if (e_body.length == 0) {
+            return null;
+        }
+        return $(e_body[0]).text();
+    }
+    static get_new_arrival_blog_domain(nd_with2) {
+        const a_tag = $(nd_with2).find("a.jq-follow-link");
+        if (a_tag.length == 0) {
+            return null;
+        }
+        var url = BlogUtil.cut_blog_url_from_with2_link($(a_tag[0]).attr("href"));
+        return BlogUtil.cut_blog_domain_from_link(url);
+    }
+
     /*!
      *  @brief  ブログ名を得る
      *  @param  element ランキング要素の起点ノード
      */
     get_blog_name(nd_with2) {
-        return ContextMenuController_With2.get_ranking_blog_name(nd_with2);
+        const ranking = ContextMenuController_With2.get_ranking_blog_name(nd_with2);
+        if (ranking != null) {
+            return ranking;
+        }
+        const new_arrival
+            = ContextMenuController_With2.get_new_arrival_blog_name(nd_with2);
+        if (new_arrival != null) {
+            return new_arrival;
+        }
+        return null;
     }
     /*!
      *  @brief  ブログURLを得る
      *  @param  element ランキング要素の起点ノード
      */
     get_blog_url(nd_with2) {
-        return ContextMenuController_With2.get_ranking_blog_url(nd_with2);
+        const ranking = ContextMenuController_With2.get_ranking_blog_domain(nd_with2);
+        if (ranking != null) {
+            return ranking;
+        }
+        const new_arrival
+            = ContextMenuController_With2.get_new_arrival_blog_domain(nd_with2);
+        if (new_arrival != null) {
+            return new_arrival;
+        }
+        return null;
     }
     
     /*!
@@ -55,7 +90,15 @@ class ContextMenuController_With2 extends ContextMenuController {
                    e.classList.length > 0 &&
                    e.classList[0] == 'item';
         });
-        return nd_ranking_section;
+        if (nd_ranking_section.length > 0) {
+            return nd_ranking_section;
+        }
+        const nd_new_arrival_item = BlogUtil.search_upper_node($(element), (e)=> {
+            return e.localName == 'li' &&
+                   e.classList.length > 0 &&
+                   e.classList[0] == 'jq-follow-item-widget';
+        });
+        return nd_new_arrival_item;
     }
 
     /*!
