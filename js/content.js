@@ -27,7 +27,10 @@ class Content {
         );
     }
 
-    callback_domloaded() {
+    create_filter() {
+        if (this.filter_instance != null) {
+            return;
+        }
         const loc = new urlWrapper(location.href);
         if (loc.in_livedoor()) {
             this.filter_instance = new LivedoorFilter(this.storage);
@@ -38,8 +41,13 @@ class Content {
         } else {
             return;
         }
-        //
-        this.filter_instance.callback_domloaded();
+    }
+
+    callback_domloaded() {
+        this.create_filter();
+        if (this.filter_instance != null) {
+            this.filter_instance.callback_domloaded();
+        }
     }
 
     load() {
@@ -48,6 +56,13 @@ class Content {
             this.storage_loaded = true;
             if (this.dom_content_loaded) {
                 this.callback_domloaded();
+            } else {
+                // DOM構築完了前にもフィルタをかけてみる
+                this.create_filter();
+                if (this.filter_instance != null) {
+                    this.filter_instance.call_filtering();
+                    this.filter_instance.start_element_observer();
+                }
             }
         });
     }
@@ -65,6 +80,7 @@ class Content {
         this.initialize();
         this.kick();
         document.addEventListener("DOMContentLoaded", ()=> {
+            //this.buff.push({sts:"DOMContentLoaded", tm:performance.now()});
             this.dom_content_loaded = true;
             if (this.storage_loaded) {
                 this.callback_domloaded();

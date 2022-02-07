@@ -8,7 +8,11 @@ class BlogmuraFilter extends FilterBase {
      */
     filtering_blog_list(root_node) {
         $(root_node).find("li.blog-list-item").each((inx, itm)=>{
-            const link = $($(itm).find("p.title").find("a")[0]).attr("href");
+            const a_tag = $(itm).find("p.title").find("a");
+            if (a_tag.length <= 0) {
+                return;
+            }
+            const link = $(a_tag[0]).attr("href");
             const url = BlogUtil.cut_blog_url_from_blogmura_link(link);
             if (this.storage.blog_url_filter(url)) {
                 $(itm).detach();
@@ -20,8 +24,11 @@ class BlogmuraFilter extends FilterBase {
      */
     filtering_entry_list(root_node) {
         $(root_node).find("li.blog-list-item").each((inx, itm)=>{
-            const a_tag = $(itm).find("p.title").find("a")[0];
-            const url = BlogUtil.cut_blog_url_from_blogmura_link($(a_tag).attr("href"));
+            const a_tag = $(itm).find("p.title").find("a");
+            if (a_tag.length <= 0) {
+                return;
+            }
+            const url = BlogUtil.cut_blog_url_from_blogmura_link($(a_tag[0]).attr("href"));
             const entry_title = $(a_tag).text();
             if (this.storage.entry_title_filter(entry_title) ||
                 this.storage.blog_url_filter(url, entry_title)) {
@@ -34,7 +41,11 @@ class BlogmuraFilter extends FilterBase {
      */
     filtering_thumbnail_list(root_node) {
         $(root_node).find("li.thumbnail-list-item").each((inx, itm)=>{
-            const link = $($(itm).find("a")[0]).attr("href");
+            const a_tag = $(itm).find("a");
+            if (a_tag.length <= 0) {
+                return;
+            }
+            const link = $(a_tag[0]).attr("href");
             const url = BlogUtil.cut_blog_url_from_blogmura_link(link);
             const entry_title = $($(itm).find("div.image")[0]).attr("title");
             if (this.storage.entry_title_filter(entry_title) ||
@@ -49,6 +60,9 @@ class BlogmuraFilter extends FilterBase {
     filtering_side_entry_list(root_node) {
         $(root_node).find("li.side-post-list-item").each((inx, itm)=>{
             const a_tag = $(itm).find("a.title");
+            if (a_tag.length <= 0) {
+                return;
+            }
             const url = BlogUtil.cut_blog_url_from_blogmura_link($(a_tag).attr("href"));
             const entry_title = $(a_tag).text();
             if (this.storage.entry_title_filter(entry_title) ||
@@ -96,6 +110,10 @@ class BlogmuraFilter extends FilterBase {
                 return;
             }
             $(itm).find("div.user-post").find("li").each((inx, post)=>{
+                const a_tag = $(post).find("a");
+                if (a_tag.length <= 0) {
+                    return;
+                }
                 const entry_title = BlogUtil.get_textnode_text($(post).find("a")[0]);
                 if (this.storage.entry_title_filter(entry_title) ||
                     this.storage.blog_url_filter(url, entry_title)) {
@@ -168,16 +186,16 @@ class BlogmuraFilter extends FilterBase {
      *  @brief  無効な追加elementか？
      *  @retun  true    無効
      */
-    is_valid_records(records) {
+    is_invalid_records(records) {
         return false;
     }
 
     /*!
-     *  @param storage  ストレージインスタンス
+     *  @param storage  StorageDataインスタンス
      */
     constructor(storage) {
         super(storage);
-        super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        super.create_mutation_observer(this.is_invalid_records.bind(this));
         this.contextmenu_controller
             = new ContextMenuController_Blogmura(storage.is_filter_active()); 
     }

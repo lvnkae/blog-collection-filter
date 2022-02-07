@@ -14,9 +14,12 @@ class LivedoorFilter extends FilterBase {
             return;
         }
         $(aside).find("div.ad").each((inx, ad)=> {
-            const url = $($(ad).find("a")[0]).attr("href");
-            if (this.storage.blog_url_filter(url)) {
-                $(ad).detach();
+            const a_tag = $(ad).find("a");
+            if (a_tag.length > 0) {
+                const url = $(a_tag[0]).attr("href");
+                if (this.storage.blog_url_filter(url)) {
+                    $(ad).detach();
+                }
             }
         });
     }
@@ -32,9 +35,12 @@ class LivedoorFilter extends FilterBase {
         }
         $(aside).find("div.banner").each((inx, ban)=> {
             $(ban).find("li").each((inx, ad)=> {
-                const url = $($(ad).find("a")[0]).attr("href");
-                if (this.storage.blog_url_filter(url)) {
-                    $(ad).detach();
+                const a_tag = $(ad).find("a");
+                if (a_tag.length > 0) {
+                    const url = $(a_tag[0]).attr("href");
+                    if (this.storage.blog_url_filter(url)) {
+                        $(ad).detach();
+                    }
                 }
             });
         });
@@ -275,7 +281,11 @@ class LivedoorFilter extends FilterBase {
             if (title.length <= 0) {
                 return;
             }
-            const url = $($(title).find("a")[0]).attr("href");
+            const a_tag = $(title).find("a");
+            if (a_tag.length <= 0) {
+                return;
+            }
+            const url = $(a_tag[0]).attr("href");
             if (this.storage.blog_url_filter(url)) {
                 $(elem).detach();
                 return;
@@ -410,8 +420,16 @@ class LivedoorFilter extends FilterBase {
     }
 
     get_observing_node(elem) {
-        const tag = $("div.LyContents.MdCF");
-        $(tag).each((inx, e)=>{
+        const tag_genre = $("div.LyContents.MdCF");
+        $(tag_genre).each((inx, e)=>{
+            elem.push(e); 
+        });
+        const tag_ranking = $("div.contents")
+        $(tag_ranking).each((inx, e)=>{
+            elem.push(e); 
+        });
+        const tag_category = $("div#lb-category-list");
+        $(tag_category).each((inx, e)=>{
             elem.push(e); 
         });
     }
@@ -434,7 +452,7 @@ class LivedoorFilter extends FilterBase {
      */
     constructor(storage) {
         super(storage);
-        super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        super.create_mutation_observer(this.is_valid_records.bind(this));
         this.contextmenu_controller
             = new ContextMenuController_Livedoor(storage.is_filter_active());
     }

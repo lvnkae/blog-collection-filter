@@ -3,15 +3,21 @@
  */
 class With2Filter extends FilterBase {
 
+    static ROOT_NODE_TAG = "section#ranking";
     /*!
      *  @brief  新着記事にフィルタをかける
+     *  @param  location_node   「新着記事」の場所指定用
      */
-    filtering_new_arrival() {
-        const root_node = $("section#ranking");
+    filtering_new_arrival(location_tag) {
+        const root_node = $(With2Filter.ROOT_NODE_TAG);
         if (root_node.length <= 0) {
             return;
         }
-        $(root_node).find("ul.jq-follow-list").each((inx, g_item)=> {
+        const location_node = root_node.find(location_tag);
+        if (location_node.length <= 0) {
+            return;
+        }
+        $(location_node).find("ul.jq-follow-list").each((inx, g_item)=> {
             $(g_item).find("li").each((inx, elem)=> {
                 const a_tag = $(elem).find("a.jq-follow-link");
                 if (a_tag.length <= 0) {
@@ -32,7 +38,7 @@ class With2Filter extends FilterBase {
      *  @brief  ランキングにフィルタをかける
      */
     filtering_ranking() {
-        const root_node = $("section#ranking");
+        const root_node = $(With2Filter.ROOT_NODE_TAG);
         if (root_node.length <= 0) {
             return;
         }
@@ -67,11 +73,12 @@ class With2Filter extends FilterBase {
      */
     filtering() {
         this.filtering_ranking();
-        this.filtering_new_arrival();
+        this.filtering_new_arrival("article");
+        this.filtering_new_arrival("aside");
     }
 
     get_observing_node(elem) {
-        const tag0 = $("div.rank-body");
+        const tag0 = $(With2Filter.ROOT_NODE_TAG);
         $(tag0).each((inx, e)=>{ elem.push(e); });
     }
 
@@ -84,8 +91,13 @@ class With2Filter extends FilterBase {
      *  @brief  無効な追加elementか？
      *  @retun  true    無効
      */
-    is_valid_records(records) {
-        return false;
+    is_invalid_records(records) {
+        // タイムスタンプ以外の追加elementを探す
+        const valid = records.find((rec)=> {
+            return rec.addedNodes.length > 0 &&
+                   rec.target.className != "jq-timeview-wedget";
+        });
+        return valid == null;
     }
 
     /*!
@@ -93,7 +105,7 @@ class With2Filter extends FilterBase {
      */
     constructor(storage) {
         super(storage);
-        super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        super.create_mutation_observer(this.is_invalid_records.bind(this));
         this.contextmenu_controller
             = new ContextMenuController_With2(storage.is_filter_active()); 
     }

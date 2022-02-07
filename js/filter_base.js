@@ -19,17 +19,13 @@ class FilterBase {
         this.storage = storage;
         //
         this.current_location = new urlWrapper(location.href);
-        this.after_domloaded_observer = null;
+        this.mutation_observer = null;
         this.observer_timer = null;
         this.filtering_timer = null;
         //
         this.initialize();
     }
 
-    /*!
-     *  @brief  子iframeに右クリック監視を追加
-     */
-    add_iframe_onmouse_monitoring() {}
     /*!
      *  @brief  DOM要素追加callback
      *  @note   DOM要素追加タイミングで行いたい処理群
@@ -45,8 +41,8 @@ class FilterBase {
      *  @param  func_is_invalid_records DOMアイテムチェック関数
      *  @param  func_filtering          フィルタリング関数
      */
-    create_after_domloaded_observer(func_is_invalid_records) {
-        this.after_domloaded_observer = new MutationObserver((records)=> {
+    create_mutation_observer(func_is_invalid_records) {
+        this.mutation_observer = new MutationObserver((records)=> {
             //
             this.callback_domelement_adition();
             //
@@ -56,31 +52,18 @@ class FilterBase {
             if (records.length == 0) {
                 return; // なぜか空
             }
+            var num_added_nodes = 0;
+            records.forEach((rec)=> {
+                num_added_nodes += rec.addedNodes.length;
+            });
+            if (num_added_nodes == 0) {
+                return; // 追加なし
+            }
             if (func_is_invalid_records(records)) {
                 return; // 無効
             }
-            const loc = this.current_location;
-            if (loc.url != location.href) {
-                // URLが変わった(=下位フレーム再構成)らタイマー捨てて即処理
-                if (this.filtering_timer != null) {
-                    clearTimeout(this.filtering_timer);
-                    this.filtering_timer = null;
-                }
-                this.current_location = new urlWrapper(location.href);
-                this.filtering();
-                this.add_iframe_onmouse_monitoring();
-            } else {
-                // 短時間の連続追加はまとめて処理したい気持ち
-                if (this.filtering_timer == null) {
-                    this.filtering_timer = setTimeout(()=> {
-                        this.current_location = new urlWrapper(location.href);
-                        this.filtering();
-                        clearTimeout(this.filtering_timer);
-                        this.filtering_timer = null;
-                        this.add_iframe_onmouse_monitoring();
-                    }, 200); /* 1/5sec */
-                }
-            }
+            this.current_location = new urlWrapper(location.href);
+            this.call_filtering();
         });
     }
 
@@ -93,7 +76,7 @@ class FilterBase {
         var elem = [];
         this.get_observing_node(elem);
         for (var e of elem) {
-            this.after_domloaded_observer.observe(e, {
+            this.mutation_observer.observe(e, {
                 childList: true,
                 subtree: true,
             });
@@ -101,27 +84,49 @@ class FilterBase {
         return elem.length > 0;
     }
 
-    callback_domloaded() {
+    start_element_observer() {
+        if (this.observer_timer != null) {
+            // 予約済みなら即3を叩いてみる
+            // 1) storage.load
+            // 2) DOMContentLoaded
+            // 3) observeに監視対象element登録
+            // 1で3を叩くも空振り(監視element未精製)、予約だけ行う
+            // intarval中に2が発生、filtering空振り(対象element未生成)
+            // intarval後再度3を叩くも、filtering対象elementは追加済み
+            // というすっぽ抜け対策
+            if (this.ready_element_observer()) {
+                clearTimeout(this.observer_timer);
+                this.observer_timer = null;
+            }
+        } else
         if (!this.ready_element_observer()) {
-            // DOM構築完了時点でキーelementが見つからない場合は
-            // intervalTimerで生成を待ってobserver登録する
-            this.observer_timer = setInterval(()=> {
+            // キーelementが見つからない場合は
+            // "timeout"を使い生成できるまでretry
+            // ※intervalより周期が安定的(らしい)
+            const intv = 16; // ※1/60sec弱
+            const func = ()=> {
                 if (this.ready_element_observer()) {
-                    this.add_iframe_onmouse_monitoring();
-                    clearInterval(this.observer_timer);
+                    clearTimeout(this.observer_timer);
                     this.observer_timer = null;
+                } else {
+                    this.observer_timer = setTimeout(func, intv);
                 }
-            }, 33); /* 1/30sec */
-        } else {
-            this.add_iframe_onmouse_monitoring();
+            };
+            this.observer_timer = setTimeout(func, intv);
         }
     }
 
+    callback_domloaded() {
+        this.start_element_observer();
+    }
 
     /*!
      *  @brief  フィルタリング
      */
     filtering() {
+        this.call_filtering();
+    }
+    call_filtering() {
         if (!this.storage.json.active) {
             return;
         }
