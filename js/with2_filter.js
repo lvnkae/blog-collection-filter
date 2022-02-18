@@ -45,6 +45,9 @@ class With2Filter extends FilterBase {
         $(root_node).find("ul.rank").each((inx, g_rank)=> {
             $(g_rank).find("li").each((inx, elem)=> {
                 if ($(elem).attr("class") != null) {
+                    if (elem.className.indexOf("ads") == 0) {
+                        $(elem).detach();
+                    }
                     return;
                 }
                 const blog = $(elem).find("a.ttl");
@@ -57,8 +60,12 @@ class With2Filter extends FilterBase {
                     $(elem).detach();
                     return;
                 }
-                $(elem).find("p.ping").find("span.item").each((inx, itm)=>{
-                    const entry_title = $($(itm).find("a")[0]).text();
+                $(elem).find("ul.ping").find("li").each((inx, itm)=>{
+                    const a_tag = $(itm).find("a");
+                    if (a_tag.length <= 0) {
+                        return;
+                    }
+                    const entry_title = $(a_tag).text();
                     if (this.storage.entry_title_filter(entry_title) ||
                         this.storage.blog_url_filter(url, entry_title)) {
                         $(itm).detach();

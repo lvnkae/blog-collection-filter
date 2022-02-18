@@ -186,11 +186,11 @@ class ContextMenuController_Livedoor extends ContextMenuController {
 
     // おすすめ速報
     static get_genre_blog_domail(nd_livedoor) {
-        const e_thmb = $(nd_livedoor).find("div.mdList06Thumb");
-        if (e_thmb.length == 0) {
+        const e_h3 = $(nd_livedoor).find("h3.mdList06Ttl");
+        if (e_h3.length == 0) {
             return null;
         }
-        const a_tag = $(e_thmb).find("a");
+        const a_tag = $(e_h3).find("a");
         if (a_tag.length == 0) {
             return null;
         }
