@@ -24,7 +24,7 @@ class Badge  {
 class BlogFilterParam {
     constructor(text, comment) {
         this.black_titles = text;
-        this.comment = comment;
+        this.comment = comment.slice(0, StorageJSON.MAX_LEN_COMMENT);
     }
 };
 
@@ -357,6 +357,12 @@ class Popup {
                     this.ex_blog_buffer[ng.url]
                         = new BlogFilterParam(bt_text, ng.comment);
                 }
+            }
+            // 最終選択exページに反映しておく(import対応)
+            if (this.ex_blog_last in this.ex_blog_buffer) {
+                const src = this.ex_blog_buffer[this.ex_blog_last];
+                this.textarea_filter_ex_blog_url().val(src.black_titles);
+                this.textbox_blog_name().val(src.comment);
             }
         }
     }

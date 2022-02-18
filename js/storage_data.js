@@ -1,65 +1,24 @@
 /*!
- *  @brief  データクラス
+ *  @brief  保存データ
  */
-class StorageData {
+class StorageJSON {
 
     static CSV_TAG_URL = "NG_BLOG_URL=";
     static CSV_TAG_COMMENT = "NB_BLOG_COMMENT=";
     static CSV_TAG_BL = "NG_BLOG_NG_WORD=";
     static CSV_TAG_WORD = "NG_WORD=";
 
+    static MAX_LEN_COMMENT = 32;
+
     constructor() {
-        this.clear();
+        this.active = true;        // フィルタ 有効/無効
+        this.ng_blog_url = [];     // ブログフィルタ(URL)
+        this.ng_blog_entry = [];   // ブログ記事フィルタ(ワード)
     }
-
-    filter_key() {
-        return "Filter";
-    }
-
-    load() {
-        return new Promise((resolve, reject) => {
-            chrome.storage.local.get((items) => {
-                if (this.filter_key() in items) {
-                    this.json = JSON.parse(items[this.filter_key()]);
-                    this.update_text();
-                } else {
-                    this.clear();
-                }
-                resolve();
-            });
-        }); 
-    }
-
-    save() {
-        var jobj = {};
-        jobj[this.filter_key()] = JSON.stringify(this.json);
-        chrome.storage.local.set(jobj);
-    }
-    
-    clear() {
-        this.json = {}
-        this.json.active = true;        // フィルタ 有効/無効
-        this.json.ng_blog_url = [];     // ブログフィルタ(URL)
-        this.json.ng_blog_entry = [];   // ブログ記事フィルタ(ワード)
-
-        this.clear_text_buffer();
-    }
-
-    clear_text_buffer() {
-        this.ng_blog_url_text = "";
-        this.ng_blog_entry_text = "";
-    }
-
-    update_text() {
-        this.clear_text_buffer();
-        //  フィルタを改行コードで連結してバッファに格納
-        const NLC = text_utility.new_line_code_lf();
-        for (const ng of this.json.ng_blog_url) {
-            this.ng_blog_url_text += ng.url + NLC;
-        }
-        for (const word of this.json.ng_blog_entry) {
-            this.ng_blog_entry_text += word+ NLC;
-        }
+    set(json) {
+        this.active = json.active;
+        this.ng_blog_url = json.ng_blog_url;
+        this.ng_blog_entry = json.ng_blog_entry;
     }
 
     /*!
@@ -87,14 +46,14 @@ class StorageData {
         if (ng.url == "") {
             return "";
         }
-        retcsv += StorageData.CSV_TAG_URL + ","
-               + '"' + StorageData.encord_for_export(ng.url) + '"';
-        retcsv += "," + StorageData.CSV_TAG_COMMENT + ","
-               + '"' + StorageData.encord_for_export(ng.comment) + '"';
-        retcsv += "," + StorageData.CSV_TAG_BL;
+        retcsv += StorageJSON.CSV_TAG_URL + ","
+               + '"' + StorageJSON.encord_for_export(ng.url) + '"';
+        retcsv += "," + StorageJSON.CSV_TAG_COMMENT + ","
+               + '"' + StorageJSON.encord_for_export(ng.comment) + '"';
+        retcsv += "," + StorageJSON.CSV_TAG_BL;
         for (const ngt of ng.black_titles) {
             if (ngt != "") {
-                retcsv += "," + '"' + StorageData.encord_for_export(ngt) + '"';
+                retcsv += "," + '"' + StorageJSON.encord_for_export(ngt) + '"';
             }
         }
         return retcsv;
@@ -107,8 +66,8 @@ class StorageData {
         if (word == "") {
             return "";
         }
-        retcsv += StorageData.CSV_TAG_WORD + ","
-               + '"' + StorageData.encord_for_export(word) + '"';
+        retcsv += StorageJSON.CSV_TAG_WORD + ","
+               + '"' + StorageJSON.encord_for_export(word) + '"';
         return retcsv;
     }
     /*!
@@ -117,11 +76,11 @@ class StorageData {
     export() {
         var retcsv = "";
         const NLC = text_utility.new_line_code_lf();
-        for (const ng of this.json.ng_blog_url) {
-            retcsv += StorageData.export_ng_url_unit(ng) + NLC;
+        for (const ng of this.ng_blog_url) {
+            retcsv += StorageJSON.export_ng_url_unit(ng) + NLC;
         }
-        for (const word of this.json.ng_blog_entry) {
-            retcsv += StorageData.export_ng_word_unit(word) + NLC;
+        for (const word of this.ng_blog_entry) {
+            retcsv += StorageJSON.export_ng_word_unit(word) + NLC;
         }
         return retcsv;
     }
@@ -183,6 +142,43 @@ class StorageData {
         return split_row;
     }
     /*!
+     *  @brief  URLフィルタ1つ分をsplit_rowから得る
+     *  @param  split_row   importデータ1行分を要素ごとに分割したもの
+     */
+    static get_url_filter_object(split_row) {
+        const MAX_LEN_IMPORT_URL = 72;
+        const SPR_INDEX_URL = 1;
+        const SPR_INDEX_COMMENT_TAG = 2;
+        const SPR_INDEX_COMMENT = 3;
+        const SPR_INDEX_BL_TAG = 4;
+        const SPR_INDEX_BL_TOP = 5;
+        var url_filter = {};
+        url_filter.url = split_row[SPR_INDEX_URL];
+        if (url_filter.url.length > MAX_LEN_IMPORT_URL) {
+            return null;
+        }
+        if (split_row[SPR_INDEX_COMMENT_TAG] == StorageJSON.CSV_TAG_COMMENT) {
+            if (split_row[SPR_INDEX_COMMENT].length > StorageJSON.MAX_LEN_COMMENT) {
+                return null;
+            }
+            url_filter.comment = split_row[SPR_INDEX_COMMENT];
+        } else {
+            return null;
+        }
+        if (split_row[SPR_INDEX_BL_TAG] == StorageJSON.CSV_TAG_BL) {
+            url_filter.black_titles = [];
+            for (var inx = SPR_INDEX_BL_TOP; inx < split_row.length; inx++) {
+                if (split_row[inx] != "") {
+                    url_filter.black_titles.push(split_row[inx]);
+                }
+            }
+        } else {
+            return null;
+        }
+        return url_filter;
+    }
+
+    /*!
      *  @brief  1行分のimportデータをstorageへ書き込む
      */
     import_row(split_row) {
@@ -190,71 +186,111 @@ class StorageData {
             return true;
         }
         const SPR_INDEX_TYPE_TAG = 0;
-        if (split_row[SPR_INDEX_TYPE_TAG] == StorageData.CSV_TAG_URL) {
-            const MAX_LEN_IMPORT_URL = 72;
-            const SPR_INDEX_URL = 1;
-            const SPR_INDEX_COMMENT_TAG = 2;
-            const SPR_INDEX_COMMENT = 3;
-            const SPR_INDEX_BL_TAG = 4;
-            const SPR_INDEX_BL_TOP = 5;
-            const src_url = split_row[SPR_INDEX_URL];
-            if (src_url.length > MAX_LEN_IMPORT_URL) {
+        if (split_row[SPR_INDEX_TYPE_TAG] == StorageJSON.CSV_TAG_URL) {
+            const url_filter = StorageJSON.get_url_filter_object(split_row);
+            if (url_filter == null) {
                 return false;
             }
-            for (var obj of this.json.ng_blog_url) {
-                if (obj.url == split_row[SPR_INDEX_URL]) {
-                    if (split_row[SPR_INDEX_COMMENT_TAG] == StorageData.CSV_TAG_COMMENT) {
-                        obj.comment = split_row[SPR_INDEX_COMMENT];
-                    }
-                    if (split_row[SPR_INDEX_BL_TAG] == StorageData.CSV_TAG_BL) {
-                        obj.black_titles = [];
-                        for (var inx = SPR_INDEX_BL_TOP; inx < split_row.length; inx++) {
-                            if (split_row[inx] != "") {
-                                obj.black_titles.push(split_row[inx]);
-                            }
-                        }
-                    }
+            for (var obj of this.ng_blog_url) {
+                if (obj.url == url_filter.url) {
+                    obj.comment = url_filter.comment;
+                    obj.black_titles = url_filter.black_titles;
                     return true;
                 }
             }
-            var ng_blog = {};
-            ng_blog.url = split_row[SPR_INDEX_URL];
-            if (split_row[SPR_INDEX_COMMENT_TAG] == StorageData.CSV_TAG_COMMENT) {
-                ng_blog.comment = split_row[SPR_INDEX_COMMENT];
-            } else {
-                return false;
-            }
-            if (split_row[SPR_INDEX_BL_TAG] == StorageData.CSV_TAG_BL) {
-                ng_blog.black_titles = [];
-                for (var inx = SPR_INDEX_BL_TOP; inx < split_row.length; inx++) {
-                    if (split_row[inx] != "") {
-                        ng_blog.black_titles.push(split_row[inx]);
-                    }
-                }
-            } else {
-                return false;
-            }
-            this.json.ng_blog_url.push(ng_blog);            
-        } else if (split_row[SPR_INDEX_TYPE_TAG] == StorageData.CSV_TAG_WORD) {
+            this.ng_blog_url.push(url_filter);
+        } else if (split_row[SPR_INDEX_TYPE_TAG] == StorageJSON.CSV_TAG_WORD) {
             const SPR_INDEX_WORD = 1;
-            for (const word of this.json.ng_blog_entry) {
+            for (const word of this.ng_blog_entry) {
                 if (word == split_row[SPR_INDEX_WORD]) {
                     return true;
                 }
             }
-            this.json.ng_blog_entry.push(split_row[SPR_INDEX_WORD]);
+            this.ng_blog_entry.push(split_row[SPR_INDEX_WORD]);
+        } else {
+            return false;
         }
         return true;
     }
-
     import(csv) {
         var csv_array = text_utility.split_by_new_line(csv);
         for (const csv_row of csv_array) {
-            if (!this.import_row(StorageData.split_import_csv_row(csv_row))) {
+            if (!this.import_row(StorageJSON.split_import_csv_row(csv_row))) {
                 return false;
             }
         }
         return true;
+    }
+}
+
+/*!
+ *  @brief  データクラス
+ */
+class StorageData {
+
+    constructor() {
+        this.clear();
+    }
+
+    filter_key() {
+        return "Filter";
+    }
+
+    load() {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get((items) => {
+                if (this.filter_key() in items) {
+                    this.json.set(JSON.parse(items[this.filter_key()]));
+                    this.update_text();
+                } else {
+                    this.clear();
+                }
+                resolve();
+            });
+        }); 
+    }
+
+    save() {
+        var jobj = {};
+        jobj[this.filter_key()] = JSON.stringify(this.json);
+        chrome.storage.local.set(jobj);
+    }
+    
+    clear() {
+        this.json = new StorageJSON();
+        this.clear_text_buffer();
+    }
+
+    clear_text_buffer() {
+        this.ng_blog_url_text = "";
+        this.ng_blog_entry_text = "";
+    }
+
+    update_text() {
+        this.clear_text_buffer();
+        //  フィルタを改行コードで連結してバッファに格納
+        const NLC = text_utility.new_line_code_lf();
+        for (const ng of this.json.ng_blog_url) {
+            this.ng_blog_url_text += ng.url + NLC;
+        }
+        for (const word of this.json.ng_blog_entry) {
+            this.ng_blog_entry_text += word+ NLC;
+        }
+    }
+
+    export() {
+        return this.json.export();
+    }
+    import(csv) {
+        var json_buff = new StorageJSON();
+        json_buff.set(this.json);
+        if (json_buff.import(csv)) {
+            // 完全に成功した場合のみ反映
+            this.json = json_buff;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*!

@@ -21,8 +21,7 @@ class ContextMenuController {
         if (blog_name == null || blog_url == null) {
             return false;
         }
-        const max_disp_name = 32;
-        const blog_name_str = blog_name.slice(0, max_disp_name-1);
+        const blog_name_str = blog_name.slice(0, StorageJSON.MAX_LEN_COMMENT);
         const title = blog_name_str + "をミュート";
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
