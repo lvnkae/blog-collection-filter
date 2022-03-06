@@ -10,6 +10,15 @@ class Content {
                 if (request.command == MessageUtil.command_update_storage()) {
                     this.storage.load().then();
                 } else
+                if (request.command == MessageUtil.command_open_popup()) {
+                    // popupが開いたらcontextMenuを消しとく
+                    if (this.filter_instance != null) {
+                        this.filter_instance.clear_context_menu();
+                    }
+                    MessageUtil.send_message({
+                        command: MessageUtil.command_update_contextmenu()
+                    });
+                } else
                 if (request.command == MessageUtil.command_mute_blog_url()) {
                     const update
                         = this.storage.add_blog_url_mute_with_check(request.blog_url,
@@ -68,7 +77,6 @@ class Content {
     }
 
     kick() {
-        MessageUtil.send_message({command:MessageUtil.command_start_content()});
         this.load();
     }
 
@@ -80,11 +88,26 @@ class Content {
         this.initialize();
         this.kick();
         document.addEventListener("DOMContentLoaded", ()=> {
-            //this.buff.push({sts:"DOMContentLoaded", tm:performance.now()});
             this.dom_content_loaded = true;
             if (this.storage_loaded) {
                 this.callback_domloaded();
             }
+        });
+        document.addEventListener('visibilitychange', ()=> {
+            if (document.visibilityState === 'visible') {
+                if (this.filter_instance != null) {
+                    this.filter_instance.clear_context_menu();
+                }
+            } else {
+                // focusを失ったらcontextMenuを消しとく
+                MessageUtil.send_message(
+                    {command: MessageUtil.command_update_contextmenu()});
+            }
+        });
+        window.addEventListener('beforeunload', ()=> {
+            // URL遷移するならcontextMenuを消す
+            MessageUtil.send_message(
+                {command: MessageUtil.command_update_contextmenu()});
         });
     }
 }

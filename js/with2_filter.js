@@ -111,9 +111,7 @@ class With2Filter extends FilterBase {
      *  @param storage  StorageDataインスタンス
      */
     constructor(storage) {
-        super(storage);
+        super(storage, new ContextMenuController_With2(storage.is_filter_active()));
         super.create_mutation_observer(this.is_invalid_records.bind(this));
-        this.contextmenu_controller
-            = new ContextMenuController_With2(storage.is_filter_active()); 
     }
 }

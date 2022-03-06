@@ -194,9 +194,7 @@ class BlogmuraFilter extends FilterBase {
      *  @param storage  StorageDataインスタンス
      */
     constructor(storage) {
-        super(storage);
+        super(storage, new ContextMenuController_Blogmura(storage.is_filter_active()));
         super.create_mutation_observer(this.is_invalid_records.bind(this));
-        this.contextmenu_controller
-            = new ContextMenuController_Blogmura(storage.is_filter_active()); 
     }
 }

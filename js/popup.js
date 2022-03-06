@@ -4,17 +4,13 @@
 class Badge  {
 
     constructor() {
-        // 右クリックメニューが残ってしまうので非表示指示を出しとく
-        MessageUtil.send_message({
-            command: MessageUtil.command_update_contextmenu(),
-        });
     }
     
     update(storage) {
         if (storage.json.active) {
-            chrome.browserAction.setIcon({ path : "../img/badge_on.png"});
+            chrome.action.setIcon({ path : "../img/badge_on.png"});
         } else {
-            chrome.browserAction.setIcon({ path : "../img/badge_off.png"});
+            chrome.action.setIcon({ path : "../img/badge_off.png"});
         }
     }
 };
@@ -37,6 +33,8 @@ class Popup {
 
     constructor() {
         this.initialize();
+        this.send_message_to_relative_tab(
+            {command:MessageUtil.command_open_popup()});
     }
 
     initialize() {
@@ -381,11 +379,9 @@ class Popup {
     send_message_to_relative_tab(message) {
         chrome.tabs.query({}, (tabs)=> {
             for (const tab of tabs) {
-                const url = new urlWrapper(tab.url);
-                if (url.in_livedoor() ||
-                    url.in_with2()) {
-                    chrome.tabs.sendMessage(tab.id, message);
-                }
+                // 当該extentionが動作してるtabにのみmessage送信される
+                // URL等で弾く必要はない
+                chrome.tabs.sendMessage(tab.id, message);
             }
         });
     }

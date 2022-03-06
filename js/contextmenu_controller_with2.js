@@ -102,27 +102,8 @@ class ContextMenuController_With2 extends ContextMenuController {
     }
 
     /*!
-     *  @brief  event:右クリック
-     *  @param  loc     現在location(urlWrapper)
-     *  @param  element 右クリックされたelement
-     */
-    event_mouse_right_click(loc, element) {
-        if (!loc.in_with2()) {
-            return;
-        }
-        if (this.filter_active) {
-            const nd_with2 = this.get_base_node(element);
-            if (nd_with2.length > 0 && super.on_mute_menu(nd_with2)) {
-                return;
-            }
-        }
-        ContextMenuController.off_original_menu();
-    }
-
-    /*!
      */
     constructor(active) {
-        super();
-        this.filter_active = active;
+        super(active);
     }
 }

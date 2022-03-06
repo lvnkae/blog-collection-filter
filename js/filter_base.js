@@ -7,16 +7,15 @@ class FilterBase {
     initialize() {
         const active = this.storage.json.active;
         const loc = this.current_location;
-        if (loc.in_livedoor()) {
-            //this.contextmenu_controller = new ContextMenuController_Livedoor(active);
-        }
     }
 
     /*!
-     *  @param storage  ストレージインスタンス(shared_ptr的なイメージ)
+     *  @param storage                  ストレージインスタンス(shared_ptr的なイメージ)
+     *  @param contextmenu_controller   右クリックメニュー制御インスタンス
      */
-    constructor(storage) {
+    constructor(storage, contextmenu_controller) {
         this.storage = storage;
+        this.contextmenu_controller = contextmenu_controller;
         //
         this.current_location = new urlWrapper(location.href);
         this.mutation_observer = null;
@@ -35,6 +34,12 @@ class FilterBase {
      *  @brief  高速化用マーカーをクリアする
      */
     clear_marker() {}
+    /*!
+     *  @brief  右クリックメニューをクリアする
+     */
+    clear_context_menu() {
+        this.contextmenu_controller.clear();
+    }
 
     /*!
      *  @brief  element追加observer生成

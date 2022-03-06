@@ -451,9 +451,7 @@ class LivedoorFilter extends FilterBase {
      *  @param storage  ストレージインスタンス
      */
     constructor(storage) {
-        super(storage);
+        super(storage, new ContextMenuController_Livedoor(storage.is_filter_active()));
         super.create_mutation_observer(this.is_valid_records.bind(this));
-        this.contextmenu_controller
-            = new ContextMenuController_Livedoor(storage.is_filter_active());
     }
 }
