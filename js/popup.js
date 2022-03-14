@@ -379,13 +379,9 @@ class Popup {
 
 
     send_message_to_relative_tab(message) {
-        chrome.tabs.query({}, (tabs)=> {
+        browser.tabs.query({}, (tabs)=> {
             for (const tab of tabs) {
-                const url = new urlWrapper(tab.url);
-                if (url.in_livedoor() ||
-                    url.in_with2()) {
-                    chrome.tabs.sendMessage(tab.id, message);
-                }
+                chrome.tabs.sendMessage(tab.id, message);
             }
         });
     }

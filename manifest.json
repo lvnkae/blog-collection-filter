@@ -12,11 +12,10 @@
          "19": "img/badge_on.png"
       },
       "default_popup": "html/popup.html",
-      "default_title": "Blog Collection Filter",
-      "name": "Blog Collection Filter"
+      "default_title": "Blog Collection Filter"
    },
    "content_scripts": [ {
-      "js": [ "js/jquery-3.3.1.min.js",
+      "js": [ "js/jquery-3.3.1.js",
               "js/message_utility.js",
               "js/text_utility.js",
               "js/url_wrapper.js",
@@ -41,11 +40,14 @@
       "19": "img/badge_on.png",
       "48": "img/icon_48.png"
    },
+   "applications": {
+      "gecko": {
+        "id": "blog-collection-filter@id-for-storage"
+      }
+    },   
    "manifest_version": 2,
    "name": "ブログフィルタ",
-   "author": "lvnkae",
-   "permissions": [ "tabs", "storage", "contextMenus"],
+   "permissions": [ "storage", "contextMenus"],
    "short_name": "BlogCollectionFilter",
-   "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0.0.0"
 }

@@ -26,14 +26,13 @@ class Background {
      */
     initialize() {
         chrome.runtime.onMessage.addListener(
-            (request, sender, sendResponse)=> {
+            (request, sender)=> {
                 if (request.command == MessageUtil.command_update_contextmenu()) {
                     this.contextmenu_controller.on_message(request);
                 } else
                 if (request.command == MessageUtil.command_start_content()) {
                     this.entry(sender.id, sender.tab.id);
                 }
-                return true;
             }
         );
     }
