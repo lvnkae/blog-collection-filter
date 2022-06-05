@@ -49,5 +49,5 @@
    "name": "ブログフィルタ",
    "permissions": [ "storage", "contextMenus"],
    "short_name": "BlogCollectionFilter",
-   "version": "1.0.0.0"
+   "version": "1.0.0.1"
 }
