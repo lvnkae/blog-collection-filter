@@ -19,7 +19,9 @@ class ContextMenuController_Blogmura extends ContextMenuController {
             return $(e_span_subtitle).text();
         } 
         // 存在しなければtitleがそのままブログ名(=ランキング)
-        const e_title = $(nd_blogmura).find("p.title");
+        const d_title = $(nd_blogmura).find("div.title");
+        const p_title = $(nd_blogmura).find("p.title");
+        const e_title = (d_title.length <= 0) ?p_title :d_title;
         if (e_title.length <= 0) {
             return null;
         }
@@ -30,7 +32,9 @@ class ContextMenuController_Blogmura extends ContextMenuController {
         return $(a_tag).text();
     }
     static get_blog_item_domain(nd_blogmura) {
-        const e_title = $(nd_blogmura).find("p.title") ;
+        const d_title = $(nd_blogmura).find("div.title");
+        const p_title = $(nd_blogmura).find("p.title");
+        const e_title = (d_title.length <= 0) ?p_title :d_title;
         if (e_title.length <= 0) {
             return null;
         }

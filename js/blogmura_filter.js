@@ -103,7 +103,7 @@ class BlogmuraFilter extends FilterBase {
             if (blog.length <= 0) {
                 return;
             }
-            const link = $($(blog).find("p.title").find("a")[0]).attr("href");
+            const link = $($(blog).find("div.title").find("a")[0]).attr("href");
             const url = BlogUtil.cut_blog_url_from_blogmura_link(link);
             if (this.storage.blog_url_filter(url)) {
                 $(itm).detach();
